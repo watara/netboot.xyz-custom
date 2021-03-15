@@ -1,74 +1,37 @@
 #!ipxe
+###
+### netboot.xyz-custom menu example
+###
 
-# Ubuntu Operating System
-# https://www.ubuntu.com
-
-goto ${menu}
-
-:ubuntu
-set os Ubuntu
-clear ubuntu_version
-menu Nick's ${os} - ${arch_a}
-item --gap Latest Releases
-item eoan ${space} ${os} 19.10 Eoan Ermine
-item disco ${space} ${os} 19.04 Disco Dingo
-item bionic ${space} ${os} 18.04 LTS Bionic Beaver
-item xenial ${space} ${os} 16.04 LTS Xenial Xerus
-item --gap Older Releases
-item older_release ${space} Set release codename...
-choose ubuntu_version || goto ubuntu_exit
-iseq ${ubuntu_version} older_release && goto older_release ||
-goto mirrorcfg
-
-:older_release
-set older_release true
-set ubuntu_mirror http://old-releases.ubuntu.com
-echo Setting mirror to ${ubuntu_mirror}
-clear ubuntu_version
-echo -n Please set enter code name of release: ${} && read ubuntu_version
-set dir ${ubuntu_base_dir}/dists/${ubuntu_version}-updates/main/installer-${arch_a}/current/images/netboot/
-goto deb_boot_type
-
-:mirrorcfg
-set mirrorcfg mirror/suite=${ubuntu_version}
-set dir ${ubuntu_base_dir}/dists/${ubuntu_version}-updates/main/installer-${arch_a}/current/images/netboot/
-iseq ${ubuntu_version} eoan && set dir ${ubuntu_base_dir}/dists/${ubuntu_version}/main/installer-${arch_a}/current/images/netboot/ ||
-
-:deb_boot_type
-menu ${os} [${ubuntu_version}] Installer
-item --gap Install types
-item install ${space} Install
-item rescue ${space} Rescue Mode
-item expert ${space} Expert Install
-item preseed ${space} Specify preseed url...
-choose --default ${type} type || goto ubuntu
+:custom
+clear custom_choice
+menu This is a Test Menu
+item --gap This is the first sub menu
+item option_one ${space} Loading a kernel and initrd
+item option_two ${space} Loading an ISO
+item --gap This is a second sub menu
+item option_three ${space} Loads another custom sub menu
+item option_four ${space} This is option four
+choose custom_choice || goto custom_exit
 echo ${cls}
-goto deb_${type}
+goto ${custom_choice}
+goto custom_exit
 
-:deb_rescue
-set install_params rescue/enable=true
-goto deb_boot
+:option_one
+kernel https://ipx.yun.plus/vmlinuz
+initrd https://ipx.yun.plus/initrd
+imgargs vmlinuz https://ipx.yun.plus/image.squashfs
+boot || goto custom_exit
 
-:deb_expert
-set install_params priority=low
-goto deb_boot
+:option_two
+kernel https://boot.netboot.xyz/memdisk raw iso
+initrd http://path.to/iso
+boot || goto custom_exit
 
-:deb_preseed
-echo -n Specify preseed file in http://mirror.home.nickniehoff.net/preseeds: && read preseedurl
-set install_params auto=true priority=critical preseed/url=http://mirror.home.nickniehoff.net/preseeds/${preseedurl}
-goto deb_boot
+:option_three
+echo Chains into another menu...
+chain https://raw.githubusercontent.com/${github_user}/netboot.xyz-custom/master/custom1.ipxe || goto custom
 
-:deb_install
-:deb_boot
-set dir ${dir}${menu}-installer/${arch_a}
-imgfree
-kernel ${ubuntu_mirror}/${dir}/linux ${install_params} ${mirrorcfg} ${console} -- quiet ${params} initrd=initrd.gz
-initrd ${ubuntu_mirror}/${dir}/initrd.gz
-echo
-echo MD5sums:
-md5sum linux initrd.gz
-boot
-
-:ubuntu_exit
-clear menu
-exit 0
+:custom_exit
+chain utils.ipxe
+exit
