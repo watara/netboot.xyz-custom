@@ -18,9 +18,9 @@ goto ${custom_choice}
 goto custom_exit
 
 :option_one
-kernel https://ipx.yun.plus/vmlinuz
-initrd https://ipx.yun.plus/initrd
-imgargs vmlinuz https://ipx.yun.plus/image.squashfs
+kernel http://ipxe.tinkol.com/vmlinuz
+initrd http://ipxe.tinkol.com/initrd
+imgargs vmlinuz http://ipxe.tinkol.com/image.squashfs
 boot || goto custom_exit
 
 :option_two
