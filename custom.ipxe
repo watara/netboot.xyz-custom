@@ -3,10 +3,10 @@
 ### netboot.xyz-custom menu
 ###
 
-:start
-echo Hello world!
-sleep 10
-goto custom_exit
+#:start
+#echo Hello world!
+#sleep 10
+#goto custom_exit
 
 :gentoo1
 kernel https://ipx.yun.plus/vmlinuz
